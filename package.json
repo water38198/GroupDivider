@@ -12,6 +12,7 @@
     "vue": "^3.3.11"
   },
   "devDependencies": {
+    "@unocss/transformer-variant-group": "^0.58.4",
     "@vitejs/plugin-vue": "^4.5.2",
     "gh-pages": "^6.1.1",
     "unocss": "^0.58.3",

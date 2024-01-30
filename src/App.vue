@@ -2,11 +2,11 @@
 import { ref, onMounted } from 'vue';
 const peopleBox = ref([]);
 const people = ["Ataraxia", "carrie 🍄", "CPing", "hsuhsusophie", "Ivy", "jeremyChan", "jia yu", "PayRoom", "WA", "銀光菇"];
-const groupNum = ref(0);
 const waitArea = ref([]);
 const colors = ref({});
 const allBoxes = ref([]);
 const animatePerson = ref([]);
+const groupNum = ref(0)
 // 把拖動目標資料抓出來儲存
 function dragged(e) {
   e.dataTransfer.setData("text/plain", e.target.textContent)
@@ -36,14 +36,30 @@ function randomColor() {
   return color;
 }
 function divideGroup() {
-  let length = waitArea.value.length
-  if (groupNum.value == 0 || !length) return
+  // 目前有多少人
+  let length = waitArea.value.length;
+  // 如果沒人就不能分
+  if (!length) return
+  if (allBoxes.value.length) {
+    alert("請先清除！！(・`ω´・)")
+    return
+  }
+  // 總共幾組
+  groupNum.value = Math.ceil(waitArea.value.length / 2)
+  // 第幾組
   let box = 0;
+  // 還有人剩下沒被分到
   while (length > 0) {
+    // 隨機選一人，並取得他的名字
     const random = Math.floor(Math.random() * length);
     const el = waitArea.value[random];
-    console.log(el)
-    allBoxes.value[box % groupNum.value].push(el)
+    // 如果第 X 組 已經有人就 push進去 ，沒有的話要先建立陣列再放進去
+    if (allBoxes.value[box % groupNum.value]) {
+      allBoxes.value[box % groupNum.value].push(el)
+    } else {
+      allBoxes.value[box % groupNum.value] = [el]
+    }
+    // 被分完之後要從 waitArea 移除
     cancelPick(el)
     // 補上動畫的 class
     setTimeout(() => {
@@ -53,16 +69,19 @@ function divideGroup() {
     length--;
   }
 }
+function allPick() {
+  waitArea.value = [...people]
+}
 function cancelPick(person) {
   const index = waitArea.value.indexOf(person);
   if (index === -1) return
   waitArea.value.splice(index, 1)
 }
 function reset() {
-  waitArea.value = []
-  allBoxes.value = []
-  animatePerson.value = []
-  groupNum.value = 0
+  waitArea.value = [];
+  allBoxes.value = [];
+  animatePerson.value = [];
+  groupNum.value = 0;
 }
 function defineGroupsNum() {
   const num = groupNum.value;
@@ -84,29 +103,28 @@ onMounted(() => {
     <p>使用方法：將要分組的人拖曳進等待分組區，選擇好組數後，按下分組按鈕即可。</p>
     <p>※點擊可以取消</p>
     <h2>請選擇要分組的人員:</h2>
+    <button type="button"
+      class="mb-4 p-2 bg-transparent border-(2 solid t-red r-gray l-gray b-blue) hover:(cursor-pointer bg-#eee)"
+      @click="allPick">我全都要！！(´≖◞౪◟≖)</button>
     <div class="flex gap-4">
       <template v-if="Object.keys(colors).length">
         <div ref="peopleBox" class="person p-4 flex rd hover:cursor-pointer border border-solid h-50px items-center"
           draggable="true" @dragstart="dragged" v-for="person in people" :key="person"
-          :style="{ 'background-color': colors[person] }">
+          :style="{ 'background-color': colors[person] }"
+          :class="{ 'op-20': waitArea.includes(person) || allBoxes.flat().includes(person) }">
           {{ person }}
         </div>
       </template>
     </div>
     <h3>等待分組區域</h3>
+    <h4>目前人數:{{ waitArea.length }}</h4>
     <div class="flex gap-4 w-80% px-10 h-200px py-20 border border-solid border-black" @drop="drop"
       @dragenter="cancelDefault" @dragover="cancelDefault" id="waitArea">
       <div v-for="person in waitArea"
         class="person p-4 flex rd hover:cursor-pointer border border-solid h-50px items-center"
         :style="{ 'background-color': colors[person] }" @click="cancelPick(person)">{{ person }}</div>
     </div>
-    <div class="py-4 flex items-center">
-      <label for="groupNum" class="me-4">要分幾組:</label>
-      <select name="groupNum" id="" class="w-100px font-size-5 p-2" v-model="groupNum" @change="defineGroupsNum()">
-        <option v-for="i in 5" :value="i" class="font-size-5">{{ i }}</option>
-      </select>
-    </div>
-    <div>
+    <div class="mt-4">
       <button type="button"
         class="px-10 py-4 hover:cursor-pointer me-4 rd border border-solid bg-transparent hover:bg-gray hover:text-white"
         @click="divideGroup()">分組</button>
@@ -115,7 +133,7 @@ onMounted(() => {
         @click="reset()">清除</button>
     </div>
     <div class="flex justify-center">
-      <div v-for="(num, index) in groupNum" :key="index" ref="allBoxDom" class="groups flex flex-col gap-4 me-10">
+      <div v-for="(num, index) in groupNum" :key="index" class="groups flex flex-col gap-4 me-10">
         <h3 class="text-center">分組{{ num }}</h3>
         <div v-for="person in allBoxes[index]"
           class="person p-4 flex rd hover:cursor-pointer border border-solid h-50px items-center"
