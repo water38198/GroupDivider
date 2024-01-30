@@ -17,7 +17,7 @@ function drop(e) {
   // 放下的地方錯誤的話，不作用
   if (e.target.id !== "waitArea") return
   const name = e.dataTransfer.getData('text/plain');
-  if (waitArea.value.includes(name)) return
+  if (waitArea.value.includes(name) || allBoxes.value.flat().includes(name)) return
   waitArea.value.push(name)
   // e.target.appendChild(peopleBox.value.find(person => person.textContent === name))
 }
