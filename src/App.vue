@@ -39,9 +39,12 @@ function divideGroup() {
   // 目前有多少人
   let length = waitArea.value.length;
   // 如果沒人就不能分
-  if (!length) return
+  if (!length) {
+    alert("沒人是要怎麼分～(◜◔。◔◝)")
+    return
+  }
   if (allBoxes.value.length) {
-    alert("請先清除！！(・`ω´・)")
+    alert("已經分好還要加人！！請先清除！！(・`ω´・)")
     return
   }
   // 總共幾組
